@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-Library KV Kluang</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
+body{background:linear-gradient(rgba(0,0,0,0.65),rgba(0,0,0,0.65)),url('https://images.unsplash.com/photo-1507842217343-583bb7270b66');background-size:cover;background-position:center;color:#fff}
+#home.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* tengah secara menegak */
+  align-items: center;     /* tengah secara melintang */
+  text-align: center;
+}
+.icon-box {
+  margin-bottom: 20px; /* bagi jarak sikit dengan text */
+}
+.page{display:none;min-height:100vh;padding:30px;text-align:center}
+.active{display:block}
+h1{margin-bottom:20px}
+.flex{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.card{background:#ffffff22;border-radius:20px;padding:20px;width:220px;cursor:pointer;display:flex;flex-direction:column;align-items:center}
+.icon-box{width:80px;height:80px;border:2px dashed #fff;border-radius:15px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:12px;opacity:0.7}
+.icon-box1{width:80px;height:80px;border:2px dashed #fff;border-radius:15px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:12px;opacity:0.7}
+input{padding:10px;border-radius:20px;border:2px solid #8e44ad;width:250px;margin:10px}
+button{padding:10px 20px;border:none;border-radius:20px;background:#7d2ae8;color:#fff;cursor:pointer;margin:3px}
+.box{background:#fff;color:#000;padding:20px;border-radius:20px;width:90%;margin:auto;text-align:left;overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid #ccc;text-align:left}
+th{background:#eee}
+.day{background:#fff;color:#000;cursor:pointer;border-radius:10px;padding:8px}
+.day.selected{background:#7d2ae8;color:#fff}
+.header{font-weight:bold}
+#calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;max-width:400px;margin:auto}
+
+/* animation */
+/* PAGE ANIMATION UPGRADE */
+  padding:10px 20px;
+  border:none;
+  border-radius:20px;
+  background:#7d2ae8;
+  color:#fff;
+  cursor:pointer;
+  margin:3px;
+  transition:all 0.25s ease;
+}
+
+button:hover{
+  transform:scale(1.08);
+  background:#9b59b6;
+}
+
+button:active{
+  transform:scale(0.95);
+}
+
+/* INPUT FOCUS EFFECT */
+input{
+  padding:10px;
+  border-radius:20px;
+  border:2px solid #8e44ad;
+  width:250px;
+  margin:10px;
+  transition:0.3s;
+}
+
+input:focus{
+  outline:none;
+  border-color:#fff;
+  box-shadow:0 0 10px rgba(255,255,255,0.5);
+}
+
+/* FADE IN TEXT */
+h1{
+  margin-bottom:20px;
+  animation:fadeIn 1s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(-20px)}
+  to{opacity:1; transform:translateY(0)}
+}
+
+/* ICON ANIMATION */
+.icon-box, .icon-box1{
+  width:80px;
+  height:80px;
+  border:2px #fff;
+  border-radius:15px;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  opacity:1;
+  transition:0.3s;
+}
+
+.icon-box:hover, .icon-box1:hover{
+  transform:rotate(5deg) scale(1.1);
+  opacity:1;
+}
+
+.flex{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.box{background:#fff;color:#000;padding:20px;border-radius:20px;width:90%;margin:auto;text-align:left;overflow:auto}
+.input-box{
+  position: relative;
+  width: 250px;
+  margin: 10px auto;
+}
+
+.input-box input{
+  width: 100%;
+  padding: 12px 45px 12px 15px;
+  border-radius: 30px;
+  border: 2px solid #8e44ad;
+}
+
+.input-box span{
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 16px;
+}
+.input-box span{
+  color:#333; /* tukar dari putih ke gelap */
+}
+
+#myChart {
+ max-width: 400px;
+  max-height: 250px;
+  background: white;
+  border-radius: 10px;
+  padding: 10px;
+}
+</style>
+</head>
+<body>
+
+<div id="home" class="page active">
+<img src="logo.png" style="width:200px;height:200px;" div class="icon-box"><h1>SELAMAT DATANG KE SISTEM E-LIBRARY KOLEJ ATX</h1>
+<button onclick="go('login')">GET STARTED</button>
+</div>
+
+<div id="login" class="page">
+<h1>LOG MASUK</h1>
+<input id="loginEmail" placeholder="Nama / Email"><br>
+
+<div class="input-box">
+  <input id="loginPass" type="password" placeholder="Password">
+  <span onclick="togglePass('loginPass')">👁</span>
+</div>
+
+<button onclick="login()">LOG IN</button>
+<button onclick="go('register')">Register</button>
+</div>
+
+<div id="register" class="page">
+<h1>REGISTER</h1>
+<input id="name" placeholder="Nama"><br>
+<input id="phone" placeholder="Phone"><br>
+<input id="matrik" placeholder="Matrik"><br>
+<input id="email" placeholder="Email"><br>
+<div class="input-box">
+  <input id="pass" type="password" placeholder="Password">
+  <span onclick="togglePass('pass')">👁</span>
+</div>
+
+<div class="input-box">
+  <input id="cpass" type="password" placeholder="Confirm Password">
+  <span onclick="togglePass('cpass')">👁</span>
+</div><button onclick="register()">SUBMIT</button>
+<button onclick="go('login')">LOG MASUK</button>
+</div>
+
+<div id="dashboard" class="page">
+<h1>DASHBOARD</h1>
+<div class="flex">
+<div class="card" onclick="go('room')"><img src="web-browser.png" style="width:80px;height:80px;" div class="icon-box"><p>RESERVATION</p></div>
+<div class="card" onclick="loadBooking();go('mybooking')"><img src="booking.png" style="width:80px;height:80px;" div class="icon-box"><p>MY BOOKING</p></div>
+<div class="card" onclick="loadProfile();go('profile')"><img src="profile.png" style="width:80px;height:80px;" div class="icon-box"><p>PROFILE</p></div>
+</div>
+<button onclick="logout()">LOG KELUAR</button>
+</div>
+
+<div id="admin" class="page">
+<h1>ADMIN DASHBOARD</h1>
+<button onclick="logout()">LOG KELUAR</button>
+<div class="box">
+<<h3>📚 BOOKING MANAGEMENT</h3>
+<table>
+<thead><tr><th>Name</th><th>Room</th><th>Date</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
+<tbody id="adminBooking"></tbody>
+</table>
+<hr>
+<h3>👤 USER LIST</h3>
+<table>
+<thead><tr><th>Name</th><th>Email</th><th>Matrik</th><th>Action</th></tr></thead>
+<tbody id="adminUsers"></tbody>
+</table>
+</div>
+</div>
+
+<div id="profile" class="page">
+<button onclick="go('dashboard')">⬅ BACK</button>
+<h1>PROFILE</h1>
+<div class="box" id="profileData"></div>
+<br>
+<button onclick="editProfile()">EDIT PROFILE</button>
+</div>
+
+<div id="room" class="page">
+<button onclick="go('dashboard')">BACK--> </button>
+<h1>SELECT ROOM</h1>
+<div class="flex">
+<div class="card" onclick="selectRoom('Speech Room')"><img src="presentation.png" style="width:80px;height:80px;" div class="icon-box"><p>Speech Room</p></div>
+<div class="card" onclick="selectRoom('Cinema Room')"><img src="cinema.png" style="width:80px;height:80px;" div class="icon-box"><p>Cinema Room</p></div>
+<div class="card" onclick="selectRoom('Computer Room')"><img src="desk.png" style="width:80px;height:80px;" div class="icon-box"><p>Computer Room</p></div>
+</div>
+</div>
+
+<div id="date" class="page">
+<button onclick="go('dashboard')">BACK--> </button>
+<h1>SELECT DATE</h1>
+<div>
+<button onclick="prevMonth()">◀</button>
+<span id="monthYear"></span>
+<button onclick="nextMonth()">▶</button>
+</div>
+<div id="calendar"></div>
+<br>
+<select id="startTime">
+  <option value="">Start Time</option>
+</select>
+<select id="endTime">
+  <option value="">End Time</option>
+</select>
+<br>
+<button onclick="confirmBooking()">SUBMIT</button>
+</div>
+
+<div id="confirm" class="page">
+<h1>CONFIRM</h1>
+<div class="box" id="confirmData"></div>
+<button onclick="editConfirmBooking()">EDIT</button>
+<button onclick="saveBooking()">CONFIRM</button>
+</div>
+
+<div id="mybooking" class="page">
+<button onclick="go('dashboard')">⬅ BACK</button>
+<h1>MY BOOKING</h1>
+<div class="box" id="bookingList"></div>
+<br>
+<button onclick="addNewBooking()">+ Add Another Booking</button>
+</div>
+
+<div id="editProfile" class="page">
+<button onclick="go('profile')">⬅ BACK</button>
+<h1>EDIT PROFILE</h1>
+
+<input id="editName" placeholder="Nama"><br>
+<input id="editPhone" placeholder="Phone"><br>
+<input id="editMatrik" placeholder="Matrik"><br>
+<input id="editEmail" placeholder="Email"><br>
+
+<button onclick="saveProfile()">SAVE</button>
+</div>
+
+<script>
+let editIndex = null;
+function go(p){
+document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+document.getElementById(p).classList.add('active');
+}
+
+function register(){
+let n=document.getElementById('name').value.trim();
+let p=document.getElementById('phone').value.trim();
+let m=document.getElementById('matrik').value.trim();
+let e=document.getElementById('email').value.trim();
+let pw=document.getElementById('pass').value.trim();
+let cp=document.getElementById('cpass').value.trim();
+
+if(!n||!p||!m||!e||!pw||!cp){alert('Sila lengkapkan semua maklumat');return}
+if(pw!==cp){alert('Password tak sama');return}
+
+let users=JSON.parse(localStorage.getItem('users'))||[];
+users.push({name:n,phone:p,matrik:m,email:e,pass:pw});
+localStorage.setItem('users',JSON.stringify(users));
+
+alert('Register berjaya');
+go('login');
+}
+
+function login(){
+let id=document.getElementById('loginEmail').value.trim();
+let pw=document.getElementById('loginPass').value.trim();
+
+if(id==='admin' && pw==='admin@123'){loadAdmin();go('admin');return}
+
+let users=JSON.parse(localStorage.getItem('users'))||[];
+let found=users.find(u=>(u.email===id||u.name===id)&&u.pass===pw);
+
+if(found){
+localStorage.setItem('currentUser',JSON.stringify(found));
+go('dashboard');
+}else alert('Login gagal');
+}
+
+function logout(){
+document.querySelectorAll('input').forEach(i=>i.value='');
+go('home');
+}
+
+let booking={},selectedDate="",currentDate=new Date();
+function selectRoom(r){booking.room=r;go('date');renderCalendar();generateTime();}
+
+function confirmBooking(){
+let start = document.getElementById('startTime').value;
+let end = document.getElementById('endTime').value;
+
+if(!selectedDate || !start || !end){
+  alert('Isi semua');
+  return;
+}
+
+booking.date = selectedDate;
+booking.time = start + " - " + end;
+
+document.getElementById('confirmData').innerHTML =
+`${booking.room}<br>${booking.date}<br>${booking.time}`;
+
+if(isTimeConflict(selectedDate, start, end)){
+    alert('Slot sudah ditempah!');
+    return;
+  }
+
+  // ✅ BARU SIMPAN
+  booking.date = selectedDate;
+  booking.time = start + " - " + end;
+
+  document.getElementById('confirmData').innerHTML =
+  `${booking.room}<br>${booking.date}<br>${booking.time}`;
+
+  // ✅ LAST BARU PERGI PAGE
+   go('confirm');
+}
+
+function renderCalendar(){
+let cal=document.getElementById('calendar');
+let m=currentDate.getMonth(),y=currentDate.getFullYear();
+let first=new Date(y,m,1).getDay();
+let last=new Date(y,m+1,0).getDate();
+let names=["Jan","Feb","Mac","Apr","Mei","Jun","Jul","Ogos","Sep","Okt","Nov","Dis"];
+
+document.getElementById('monthYear').innerText=names[m]+" "+y;
+cal.innerHTML="";
+
+["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(d=>{
+let div=document.createElement('div');
+div.className='header';
+div.innerText=d;
+cal.appendChild(div);
+});
+
+for(let i=0;i<first;i++) cal.appendChild(document.createElement('div'));
+
+for(let i=1;i<=last;i++){
+let d=document.createElement('div');
+d.className='day';
+d.innerText=i;
+let today = new Date();
+
+if(i === today.getDate() && m === today.getMonth() && y === today.getFullYear()){
+  d.style.border = "2px solid red";
+}
+d.onclick=()=>{
+document.querySelectorAll('.day').forEach(x=>x.classList.remove('selected'));
+d.classList.add('selected');
+selectedDate=`${y}-${m+1}-${i}`;
+};
+cal.appendChild(d);
+}
+}
+
+function prevMonth(){currentDate.setMonth(currentDate.getMonth()-1);renderCalendar()}
+function nextMonth(){currentDate.setMonth(currentDate.getMonth()+1);renderCalendar()}
+
+function saveBooking(){
+let list=JSON.parse(localStorage.getItem('bookings'))||[];
+let current=JSON.parse(localStorage.getItem('currentUser'));
+
+booking.status = 'Pending';
+booking.user = current.email;
+booking.userName = current.name; // tambah ni
+
+if(editIndex !== null){
+  // 🔥 UPDATE booking lama
+  list[editIndex] = {
+    ...booking,
+    status: 'Pending' // reset status
+  };
+  editIndex = null;
+}else{
+  // 🆕 booking baru
+  list.push({
+    ...booking,
+    status: 'Pending'
+  });
+
+}
+
+localStorage.setItem('bookings',JSON.stringify(list));
+
+go('dashboard');
+
+
+}
+
+function loadBooking(){
+let list = JSON.parse(localStorage.getItem('bookings')) || [];
+let current = JSON.parse(localStorage.getItem('currentUser'));
+
+if(!current){
+  document.getElementById('bookingList').innerHTML = 'Sila login';
+  return;
+}
+
+// FILTER ikut user
+let userBooking = list.filter(b => b.user === current.email);
+
+if(userBooking.length === 0){
+  document.getElementById('bookingList').innerHTML='Tiada booking';
+  return;
+}
+document.getElementById('bookingList').innerHTML = userBooking.map((b,i)=>{
+
+let actions = '';
+
+if(b.status !== 'Approved'){
+  actions = `
+    <button onclick="editUserBooking(${i})">✏️ Edit</button>
+    <button onclick="deleteUserBooking(${i})" style="background:red">🗑️ Delete</button>
+  `;
+}else{
+  actions = `<button disabled style="background:gray">✔ Approved</button>`;
+}
+
+return `<div style="border-bottom:1px solid #ccc;padding:10px">
+📚 <b>Room:</b> ${b.room}<br>
+📅 <b>Date:</b> ${b.date}<br>
+⏰ <b>Time:</b> ${b.time}<br>
+📌 <b>Status:</b> 
+<span style="color:${b.status.includes('Approved')?'green':b.status.includes('Declined')?'red':'black'}">${b.status}</span>
+<br>${actions}
+</div>`;
+
+}).join('');
+}
+function loadAdmin(){
+let list=JSON.parse(localStorage.getItem('bookings'))||[];
+let users=JSON.parse(localStorage.getItem('users'))||[];
+
+let bookingHTML = list.map((b,i)=>{
+let user=users.find(u=>u.email===b.user);
+let name = b.userName || (user ? user.name : 'Unknown');
+return `<tr>
+<td>${name}</td>
+<td>${b.room}</td>
+<td>${b.date}</td>
+<td>${b.time}</td>
+<td style="color:${b.status.includes('Approved')?'green':b.status.includes('Declined')?'red':'black'}">${b.status}</td>
+<td>
+<button onclick="approve(${i})">Approve</button>
+<button onclick="decline(${i})" style="background:red">Decline</button>
+<button onclick="deleteBooking(${i})" style="background:#e74c3c">Delete</button>
+</td>
+</tr>`;
+}).join('');
+
+document.getElementById('adminBooking').innerHTML = bookingHTML;
+
+let userHTML = users.map((u,i)=>{
+return `<tr>
+<td>${u.name||'-'}</td>
+<td>${u.email||'-'}</td>
+<td>${u.matrik||'-'}</td>
+<td><button onclick="removeUser(${i})" style="background:#e74c3c">🗑️ Remove</button></td>
+</tr>`;
+}).join('');
+
+document.getElementById('adminUsers').innerHTML = userHTML;
+}
+
+function approve(i){
+let list=JSON.parse(localStorage.getItem('bookings'))||[];
+list[i].status='Approved';
+localStorage.setItem('bookings',JSON.stringify(list));
+loadAdmin();
+}
+
+function decline(i){
+let reason=prompt('Sebab decline:');
+if(!reason)return;
+let list=JSON.parse(localStorage.getItem('bookings'))||[];
+list[i].status='Declined: '+reason;
+localStorage.setItem('bookings',JSON.stringify(list));
+loadAdmin();
+}
+
+function loadProfile(){
+let u=JSON.parse(localStorage.getItem('currentUser'));
+if(!u)return;
+document.getElementById('profileData').innerHTML=`
+<b>Nama:</b> ${u.name}<br>
+<b>Email:</b> ${u.email}<br>
+<b>No Matrik:</b> ${u.matrik}<br>
+<b>No Phone:</b> ${u.phone}
+`;
+}
+
+function removeUser(index){
+let users=JSON.parse(localStorage.getItem('users'))||[];
+let bookings=JSON.parse(localStorage.getItem('bookings'))||[];
+
+if(!confirm('Padam user ini bersama semua booking?')) return;
+
+let removedUser=users[index];
+users.splice(index,1);
+localStorage.setItem('users',JSON.stringify(users));
+
+bookings = bookings.filter(b => b.user !== removedUser.email);
+localStorage.setItem('bookings',JSON.stringify(bookings));
+
+loadAdmin();
+}
+function editConfirmBooking(){
+  document.getElementById('startTime').value = '';
+  document.getElementById('endTime').value = '';
+  go('date');
+} 
+function deleteBooking(i){
+  let list = JSON.parse(localStorage.getItem('bookings')) || [];
+
+  if(!confirm('Padam booking ini?')) return;
+
+  list.splice(i,1); // buang data
+  localStorage.setItem('bookings', JSON.stringify(list));
+
+  loadAdmin(); // refresh table
+}
+function editProfile(){
+let u = JSON.parse(localStorage.getItem('currentUser'));
+if(!u) return;
+
+// isi data lama
+document.getElementById('editName').value = u.name || '';
+document.getElementById('editPhone').value = u.phone || '';
+document.getElementById('editMatrik').value = u.matrik || '';
+document.getElementById('editEmail').value = u.email || '';
+
+go('editProfile');
+}
+
+function saveProfile(){
+let users = JSON.parse(localStorage.getItem('users')) || [];
+let current = JSON.parse(localStorage.getItem('currentUser'));
+
+if(!current) return;
+
+let newData = {
+  name: document.getElementById('editName').value.trim(),
+  phone: document.getElementById('editPhone').value.trim(),
+  matrik: document.getElementById('editMatrik').value.trim(),
+  email: document.getElementById('editEmail').value.trim(),
+  pass: current.pass
+};
+
+let index = users.findIndex(u => u.email === current.email);
+if(index !== -1){
+  users[index] = newData;
+}
+
+localStorage.setItem('users', JSON.stringify(users));
+localStorage.setItem('currentUser', JSON.stringify(newData));
+
+loadProfile();
+go('profile');
+
+alert('Profile berjaya dikemaskini');
+}
+
+function togglePass(id){
+  let input = document.getElementById(id);
+
+  if(input.type === "password"){
+    input.type = "text";
+  } else {
+    input.type = "password";
+  }
+}
+
+function addNewBooking(){
+  booking = {};
+  selectedDate = "";
+
+  document.getElementById('startTime').value = "";
+  document.getElementById('endTime').value = "";
+
+  go('room');
+}
+
+function isTimeConflict(date, start, end){
+  let list = JSON.parse(localStorage.getItem('bookings')) || [];
+
+  return list.some(b => {
+    if(b.date !== date) return false;
+
+    let [bStart, bEnd] = b.time.split(' - ');
+
+    // tukar ke number (jam)
+    let s1 = parseInt(start);
+    let e1 = parseInt(end);
+    let s2 = parseInt(bStart);
+    let e2 = parseInt(bEnd);
+
+    // check overlap
+    return (s1 < e2 && e1 > s2);
+  });
+}
+
+function generateTime(){
+  let start = document.getElementById('startTime');
+  let end = document.getElementById('endTime');
+
+  start.innerHTML = '<option value="">Start Time</option>';
+  end.innerHTML = '<option value="">End Time</option>';
+
+  for(let i=8; i<=22; i++){
+    let time = (i<10?'0':'') + i + ":00";
+
+    start.innerHTML += `<option value="${time}">${time}</option>`;
+    end.innerHTML += `<option value="${time}">${time}</option>`;
+  }
+}
+
+function editUserBooking(index){
+  let list = JSON.parse(localStorage.getItem('bookings')) || [];
+  let current = JSON.parse(localStorage.getItem('currentUser'));
+
+  let userBookings = list.filter(b => b.user === current.email);
+  let b = userBookings[index];
+
+  // ❌ Block kalau approved
+  if(b.status === 'Approved'){
+    alert('Booking telah diluluskan, tidak boleh edit');
+    return;
+  }
+
+  // 🔥 cari index sebenar dalam list
+  editIndex = list.findIndex(x =>
+    x.user === b.user &&
+    x.date === b.date &&
+    x.time === b.time
+  );
+
+  // isi semula data
+  booking = {...b};
+  selectedDate = b.date;
+
+	generateTime(); // 🔥 wajib
+
+  let [start,end] = b.time.split(' - ');
+  document.getElementById('startTime').value = start;
+  document.getElementById('endTime').value = end;
+
+  go('date');
+  renderCalendar();
+}
+
+function deleteUserBooking(index){
+  let list = JSON.parse(localStorage.getItem('bookings')) || [];
+  let current = JSON.parse(localStorage.getItem('currentUser'));
+
+  let userBookings = list.filter(b => b.user === current.email);
+  let b = userBookings[index];
+
+  if(b.status === 'Approved'){
+    alert('Booking telah diluluskan, tidak boleh delete');
+    return;
+  }
+
+  if(!confirm('Padam booking ini?')) return;
+
+  list = list.filter(x =>
+    !(x.user === b.user && x.date === b.date && x.time === b.time)
+  );
+
+  localStorage.setItem('bookings', JSON.stringify(list));
+  loadBooking();
+}
+</script>
+
+</body>
+</html>
